@@ -63,6 +63,11 @@ server:
   port: ${PORT:8080}
 
 # ---- Logging ----
+# MDC fields (tenantId, requestId) are populated by RequestLoggingFilter + JwtAuthFilter.
+# Phase 7 will add a structured JSON appender for production; Phase 0 uses the console pattern.
 logging:
   pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{tenantId},%X{requestId}] %logger{36} - %msg%n"
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level [tid=%X{tenantId} rid=%X{requestId}] %logger{30} - %msg%n"
+  level:
+    root: INFO
+    com.iacross.flowpilot: DEBUG

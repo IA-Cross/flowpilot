@@ -20,15 +20,14 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
-      # Testcontainers spins up its own Postgres/Redis — no service containers needed
+      # Testcontainers manages its own Postgres container — no service container needed.
+      # The 'test' Spring profile loads application-test.yml with the deterministic JWT secret
+      # and disables the Redis health check.
       - name: Build and test (Testcontainers)
         working-directory: backend
         run: ./gradlew clean build --no-daemon
         env:
-          # Deterministic JWT secret for CI tests (matches application-test.yml)
           SPRING_PROFILES_ACTIVE: test
-          # Suppress Testcontainers telemetry
-          TESTCONTAINERS_RYUK_DISABLED: "false"
 
       - name: Upload test results
         if: always()
@@ -37,34 +36,32 @@ jobs:
           name: test-results
           path: backend/build/reports/tests/
 
-  dashboard:
-    name: Dashboard — lint & build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: 'npm'
-          cache-dependency-path: dashboard/package-lock.json
-      - name: Install & build
-        working-directory: dashboard
-        run: |
-          npm install
-          npm run build
+  # ---- Phase 4 (Flow Builder + dashboard) — re-enable when React source is added ----
+  # dashboard:
+  #   name: Dashboard — lint & build
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: actions/setup-node@v4
+  #       with:
+  #         node-version: '22'
+  #         cache: 'npm'
+  #         cache-dependency-path: dashboard/package-lock.json
+  #     - name: Install & build
+  #       working-directory: dashboard
+  #       run: npm ci && npm run build
 
-  widget:
-    name: Widget — lint & build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: 'npm'
-          cache-dependency-path: widget/package-lock.json
-      - name: Install & build
-        working-directory: widget
-        run: |
-          npm install
-          npm run build
+  # ---- Phase 5 (Web widget) — re-enable when widget source is added ----
+  # widget:
+  #   name: Widget — lint & build
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: actions/setup-node@v4
+  #       with:
+  #         node-version: '22'
+  #         cache: 'npm'
+  #         cache-dependency-path: widget/package-lock.json
+  #     - name: Install & build
+  #       working-directory: widget
+  #       run: npm ci && npm run build
