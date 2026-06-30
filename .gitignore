@@ -1,0 +1,38 @@
+# --- Java / Gradle ---
+.gradle/
+build/
+*.class
+*.jar
+*.war
+out/
+!gradle/wrapper/gradle-wrapper.jar
+
+# --- IDE ---
+.idea/
+*.iml
+.vscode/
+*.swp
+
+# --- Node / JS ---
+node_modules/
+dist/
+.next/
+.nuxt/
+.cache/
+*.tsbuildinfo
+
+# --- Environment ---
+.env
+.env.local
+.env.*.local
+
+# --- OS ---
+.DS_Store
+Thumbs.db
+
+# --- Docker ---
+docker-compose.override.yml
+
+# --- Logs ---
+*.log
+logs/
