@@ -12,16 +12,15 @@ spring:
       host: 127.0.0.1
       port: 6399  # intentionally wrong — no Redis in test; health check disabled below
 
-# Disable Redis health indicator — Phase 0 tests don't use Redis
-management:
-  health:
-    redis:
-      enabled: false
-
-# Deterministic JWT secret for tests — never used outside tests
+# Deterministic secrets for tests — never used outside tests
 app:
   security:
     jwt:
       secret: "test-secret-key-that-is-at-least-256-bits-long-for-hs256-algorithm!!"
-      access-token-expiry-ms: 3600000    # 1 hour
-      refresh-token-expiry-ms: 604800000 # 7 days
+      access-token-expiry-ms: 3600000
+      refresh-token-expiry-ms: 604800000
+    encryption:
+      # 64 hex zeros = 32 zero bytes — deterministic AES key for tests only
+      master-key: "0000000000000000000000000000000000000000000000000000000000000000"
+  telegram:
+    base-url: "http://localhost:${test.telegram.mock.port:9999}"

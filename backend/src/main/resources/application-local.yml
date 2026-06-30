@@ -7,5 +7,9 @@ app:
       access-token-expiry-ms: ${JWT_ACCESS_EXPIRY_MS:900000}    # 15 min default
       refresh-token-expiry-ms: ${JWT_REFRESH_EXPIRY_MS:604800000} # 7 days default
     encryption:
-      # AES-GCM master key (base64-encoded 256-bit key). Inject via env — never commit.
+      # AES-GCM master key: hex-encoded 32 bytes. Inject via env — never commit.
       master-key: ${ENCRYPTION_MASTER_KEY:}
+  telegram:
+    base-url: ${TELEGRAM_BASE_URL:https://api.telegram.org}
+    # TELEGRAM_BOT_TOKEN and TELEGRAM_WEBHOOK_SECRET are stored encrypted per channel_connection.
+    # Set them in the /api/v1/channels/telegram endpoint, not here.

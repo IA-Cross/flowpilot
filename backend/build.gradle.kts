@@ -81,6 +81,10 @@ val integrationTest by tasks.registering(Test::class) {
     description = "Runs integration tests (requires Docker)."
     group = "verification"
 
+    // Use the same compiled test classes and classpath as the 'test' task
+    testClassesDirs = sourceSets["test"].output.classesDirs
+    classpath = sourceSets["test"].runtimeClasspath
+
     useJUnitPlatform {
         includeTags("integration")
     }

@@ -52,11 +52,13 @@ management:
 app:
   security:
     jwt:
-      secret: ${JWT_SECRET:}                               # REQUIRED in production
+      secret: ${JWT_SECRET:}                                        # REQUIRED in production
       access-token-expiry-ms: ${JWT_ACCESS_EXPIRY_MS:900000}       # 15 min
       refresh-token-expiry-ms: ${JWT_REFRESH_EXPIRY_MS:604800000}  # 7 days
     encryption:
-      master-key: ${ENCRYPTION_MASTER_KEY:}               # required from Phase 1 onwards
+      master-key: ${ENCRYPTION_MASTER_KEY:}               # REQUIRED: hex 64-char = 32-byte AES-256 key
+  telegram:
+    base-url: ${TELEGRAM_BASE_URL:https://api.telegram.org}
 
 # ---- Server ----
 server:

@@ -289,8 +289,8 @@ The full design rationale lives in `docs/`. Start here if you want to understand
 
 | Phase | Focus | Status |
 |---|---|---|
-| P0 | Foundations & walking skeleton | 🔲 Not started |
-| P1 | Orchestration engine + Telegram | 🔲 Not started |
+| P0 | Foundations & walking skeleton | ✅ Complete |
+| P1 | Orchestration engine + Telegram | ✅ Complete |
 | — | Benchmark smoke test | 🔲 Not started |
 | P2 | AI intent + all node types | 🔲 Not started |
 | P3 | Commerce + delivery | 🔲 Not started |
