@@ -20,12 +20,18 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
-      # Testcontainers manages its own Postgres container — no service container needed.
-      # The 'test' Spring profile loads application-test.yml with the deterministic JWT secret
-      # and disables the Redis health check.
-      - name: Build and test (Testcontainers)
+      # 'build' runs only @Tag("integration")-excluded unit tests — no Docker needed.
+      - name: Build & unit tests
         working-directory: backend
         run: ./gradlew clean build --no-daemon
+        env:
+          SPRING_PROFILES_ACTIVE: test
+
+      # Integration tests use Testcontainers (Docker available on ubuntu-latest runners).
+      # The 'test' Spring profile disables the Redis health check.
+      - name: Integration tests (Testcontainers)
+        working-directory: backend
+        run: ./gradlew integrationTest --no-daemon
         env:
           SPRING_PROFILES_ACTIVE: test
 

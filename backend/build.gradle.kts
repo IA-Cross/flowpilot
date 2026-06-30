@@ -66,10 +66,28 @@ dependencies {
     testImplementation("org.testcontainers:postgresql")
 }
 
+// ---- Unit tests (default: ./gradlew test / build) ----
+// Excludes @Tag("integration") tests — runs without Docker.
 tasks.named<Test>("test") {
-    useJUnitPlatform()
-    // Forward all JVM system properties prefixed with "testcontainers" to test JVM
+    useJUnitPlatform {
+        excludeTags("integration")
+    }
     systemProperty("spring.profiles.active", "test")
+}
+
+// ---- Integration tests (./gradlew integrationTest) ----
+// Requires Docker running. Run explicitly in CI and locally when needed.
+val integrationTest by tasks.registering(Test::class) {
+    description = "Runs integration tests (requires Docker)."
+    group = "verification"
+
+    useJUnitPlatform {
+        includeTags("integration")
+    }
+    systemProperty("spring.profiles.active", "test")
+
+    // Run after unit tests, but do not block the build lifecycle by default.
+    shouldRunAfter(tasks.named("test"))
 }
 
 tasks.named<BootJar>("bootJar") {
