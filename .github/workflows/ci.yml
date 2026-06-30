@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main, develop, dev]
   pull_request:
     branches: [main, develop]
 
@@ -10,60 +10,64 @@ jobs:
   backend:
     name: Backend — build & test
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:17
-        env:
-          POSTGRES_DB: flowpilot_test
-          POSTGRES_USER: flowpilot
-          POSTGRES_PASSWORD: flowpilot
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
     steps:
       - uses: actions/checkout@v4
+
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
           cache: gradle
-      - name: Build and test
+
+      # 'build' runs only @Tag("integration")-excluded unit tests — no Docker needed.
+      - name: Build & unit tests
         working-directory: backend
-        run: ./gradlew build
+        run: ./gradlew clean build --no-daemon
         env:
-          DB_URL: jdbc:postgresql://localhost:5432/flowpilot_test
-          DB_USER: flowpilot
-          DB_PASS: flowpilot
+          SPRING_PROFILES_ACTIVE: test
 
-  dashboard:
-    name: Dashboard — lint & build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: 'npm'
-          cache-dependency-path: dashboard/package-lock.json
-      - name: Install & build
-        working-directory: dashboard
-        run: npm ci && npm run build
+      # Integration tests use Testcontainers (Docker available on ubuntu-latest runners).
+      # The 'test' Spring profile disables the Redis health check.
+      - name: Integration tests (Testcontainers)
+        working-directory: backend
+        run: ./gradlew integrationTest --no-daemon
+        env:
+          SPRING_PROFILES_ACTIVE: test
 
-  widget:
-    name: Widget — lint & build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
-          node-version: '22'
-          cache: 'npm'
-          cache-dependency-path: widget/package-lock.json
-      - name: Install & build
-        working-directory: widget
-        run: npm ci && npm run build
+          name: test-results
+          path: backend/build/reports/tests/
+
+  # ---- Phase 4 (Flow Builder + dashboard) — re-enable when React source is added ----
+  # dashboard:
+  #   name: Dashboard — lint & build
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: actions/setup-node@v4
+  #       with:
+  #         node-version: '22'
+  #         cache: 'npm'
+  #         cache-dependency-path: dashboard/package-lock.json
+  #     - name: Install & build
+  #       working-directory: dashboard
+  #       run: npm ci && npm run build
+
+  # ---- Phase 5 (Web widget) — re-enable when widget source is added ----
+  # widget:
+  #   name: Widget — lint & build
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: actions/setup-node@v4
+  #       with:
+  #         node-version: '22'
+  #         cache: 'npm'
+  #         cache-dependency-path: widget/package-lock.json
+  #     - name: Install & build
+  #       working-directory: widget
+  #       run: npm ci && npm run build
