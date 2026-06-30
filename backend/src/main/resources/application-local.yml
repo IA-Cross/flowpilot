@@ -1,0 +1,11 @@
+# Local development overrides (not committed as .env; override via env vars in production)
+app:
+  security:
+    jwt:
+      # IMPORTANT: Replace with a strong random secret in production via JWT_SECRET env var
+      secret: ${JWT_SECRET:local-dev-secret-replace-in-prod-must-be-at-least-256-bits!!}
+      access-token-expiry-ms: ${JWT_ACCESS_EXPIRY_MS:900000}    # 15 min default
+      refresh-token-expiry-ms: ${JWT_REFRESH_EXPIRY_MS:604800000} # 7 days default
+    encryption:
+      # AES-GCM master key (base64-encoded 256-bit key). Inject via env — never commit.
+      master-key: ${ENCRYPTION_MASTER_KEY:}

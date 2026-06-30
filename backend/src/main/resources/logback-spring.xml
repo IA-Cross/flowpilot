@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Structured JSON logging for FlowPilot.
+  In production, Logstash encoder emits one JSON line per log event including
+  tenant/request MDC correlation IDs (TRD §11, NFR-OBS-1..3).
+  In local dev / test, falls back to a readable console pattern.
+-->
+<configuration>
+
+  <springProfile name="!local,!test">
+    <!-- Production: JSON per line (piped to log aggregator) -->
+    <appender name="JSON_STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+      <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+        <customFields>{"app":"flowpilot"}</customFields>
+        <includeMdcKeyNames>tenantId,requestId,conversationId</includeMdcKeyNames>
+      </encoder>
+    </appender>
+    <root level="INFO">
+      <appender-ref ref="JSON_STDOUT"/>
+    </root>
+  </springProfile>
+
+  <springProfile name="local,test">
+    <!-- Dev/test: human-readable with MDC fields -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+      <encoder>
+        <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level [tid=%X{tenantId} rid=%X{requestId}] %logger{30} - %msg%n</pattern>
+      </encoder>
+    </appender>
+    <root level="DEBUG">
+      <appender-ref ref="CONSOLE"/>
+    </root>
+    <logger name="org.hibernate.SQL" level="DEBUG"/>
+    <logger name="org.springframework.security" level="INFO"/>
+  </springProfile>
+
+</configuration>

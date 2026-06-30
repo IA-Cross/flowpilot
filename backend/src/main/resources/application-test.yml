@@ -1,0 +1,27 @@
+# Overrides for the 'test' Spring profile (used by Testcontainers integration tests)
+spring:
+  datasource:
+    # Testcontainers will dynamically replace these via @DynamicPropertySource
+    url: jdbc:postgresql://localhost:5432/flowpilot_test
+    username: flowpilot
+    password: flowpilot
+  flyway:
+    enabled: true
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 6399  # intentionally wrong — no Redis in test; health check disabled below
+
+# Disable Redis health indicator — Phase 0 tests don't use Redis
+management:
+  health:
+    redis:
+      enabled: false
+
+# Deterministic JWT secret for tests — never used outside tests
+app:
+  security:
+    jwt:
+      secret: "test-secret-key-that-is-at-least-256-bits-long-for-hs256-algorithm!!"
+      access-token-expiry-ms: 3600000    # 1 hour
+      refresh-token-expiry-ms: 604800000 # 7 days
